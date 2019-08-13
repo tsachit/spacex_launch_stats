@@ -9,6 +9,8 @@ const {
   GraphQLSchema
 } = require("graphql");
 
+const spacexApiURL = "https://api.spacexdata.com/v3";
+
 // Launch Type
 const LaunchType = new GraphQLObjectType({
   name: "Launch",
@@ -39,8 +41,34 @@ const RootQuery = new GraphQLObjectType({
     launches: {
       type: new GraphQLList(LaunchType),
       resolve(parent, args) {
+        return axios.get(`${spacexApiURL}/launches`).then(res => res.data);
+      }
+    },
+    launch: {
+      type: LaunchType,
+      args: {
+        flight_number: { type: GraphQLInt }
+      },
+      resolve(parent, args) {
         return axios
-          .get("https://api.spacexdata.com/v3/launches")
+          .get(`${spacexApiURL}/launches/${args.flight_number}`)
+          .then(res => res.data);
+      }
+    },
+    rockets: {
+      type: new GraphQLList(RocketType),
+      resolve(parent, args) {
+        return axios.get(`${spacexApiURL}/rockets`).then(res => res.data);
+      }
+    },
+    rocket: {
+      type: RocketType,
+      args: {
+        id: { type: GraphQLString }
+      },
+      resolve(parent, args) {
+        return axios
+          .get(`${spacexApiURL}/rockets/${args.id}`)
           .then(res => res.data);
       }
     }
